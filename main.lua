@@ -98,9 +98,10 @@ botaoSHOT:addEventListener("touch", criarTiro)
 --inimigos
 inimigo = {}
 function gerarInimigos()
-	diferenca = 10
+	diferenca = 0
 	for i=1,5 do
 		inimigo[i] = display.newRect(display.actualContentWidth/1.5+diferenca, display.actualContentHeight/4+diferenca,10,10)
+		--inimigo[i].isVisible = true
 		diferenca = diferenca + 20
 	end
 	
@@ -110,9 +111,11 @@ gerarInimigos()
 function movimetarInimigo()
 
 	for i=1,5 do
-		inimigo[i].x = inimigo[i].x-20
+		if inimigo[i] ~= nil then
+		inimigo[i].x = inimigo[i].x-10
+		end
 	end
-	
+	verificarVida()
 end
 
 
@@ -120,16 +123,15 @@ end
 --inimigos
 
 function verificarAcerto(i)
-	
-
 	for a=1, #inimigo do
-		if tiro[i].x == inimigo[a].x and tiro[i].y == inimigo[a].y then
-			display.remove(inimigo[a])
-			print("Teste de acerto")
+		if inimigo[a] ~= nil then
+			if tiro[i].x > inimigo[a].x and tiro[i].y == inimigo[a].y then
+				--inimigo[a].isVisible = false
+				display.remove(inimigo[a])
+				inimigo[a] = nil
+			end
 		end
-	end
-		
-	
+	end	
 end
 
 contadorVida = 3
@@ -137,13 +139,17 @@ vida = display.newText("Vidas: ".. contadorVida, display.actualContentWidth/7,di
 function verificarVida( )
 	
 	for i=1,#inimigo do
-		if inimigo[i].x == nave.x then
 
-		contadorVida = contadorVida - 1
-		else	
-		print("Ainda nao chegou")
-		end 
-
+		if inimigo[i] ~= nil then
+			if inimigo[i].x == nave.x then
+					contadorVida = contadorVida - 1
+					vida.isVisible = false
+					vida = display.newText("Vidas: ".. contadorVida, display.actualContentWidth/7,display.actualContentHeight/11,native.systemFont, 15)
+					--vida.isVisible = true
+					print("Entrou na verificação da vida")	
+			end	
+		end
+		
 		if contadorVida < 0 then
 		return true
 		end
