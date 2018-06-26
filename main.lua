@@ -1,5 +1,8 @@
-local physics = require("physics")
+
+local physics = require( "physics" )
 physics.start()
+physics.setGravity(0,0)
+physics.setDrawMode("hybrid")
 --botoes
 botaoUP = display.newRect(display.actualContentWidth/3.1,display.actualContentHeight/1.4,display.actualContentWidth/6,display.actualContentHeight/10)
 botaoUP:setFillColor( 0.35 )
@@ -33,7 +36,8 @@ nave:setFillColor( 0.1 )
 nave:setStrokeColor( 1, 0, 0 ) 
 
 tiro = {}
-boss = {}
+inimigo = {}
+--boss = {}
 
 function moverNaveUP(event)
 	
@@ -75,19 +79,32 @@ function moverNaveRIGHT(event)
 
 end
 
-contTiro = 1
+
 function criarTiro(event)
 	if event.phase == "began" then
+	local contTiro = #tiro+1
+	print("tiro"..contTiro)
 	tiro[contTiro] = display.newRect(nave.x,nave.y,5,3)
-	contTiro = contTiro + 1
+	tiro[contTiro].id = contTiro
+	print(contTiro)
+	physics.addBody(tiro[contTiro])
+
+	tiro[contTiro]:addEventListener("collision", verificarAcertoInimigo)
+	function function_name( ... )
+		-- body
+	end
+	timer.performWithDelay(1,function_name)
+	tiro[contTiro]:setLinearVelocity(100,0)
 	end
 end
 
 function atirar()
+
 	for i = 1 , #tiro do
-	tiro[i].x = tiro[i].x + 10
-	verificarAcertoInimigo(i)
-	verificarAcertoBoss(i)
+		
+		if tiro[i] ~= nil then
+		tiro[i].x = tiro[i].x + 10
+		end
 	end
 end
 
@@ -100,64 +117,65 @@ botaoSHOT:addEventListener("touch", criarTiro)
 
 
 --inimigos
-inimigo = {}
-contAuxInimigo = 0
+
+local contAuxInimigo = 0
 function criarInimigos()
 	diferenca = 0
 		for i= 1 + contAuxInimigo, 5 + contAuxInimigo do
 			inimigo[i] = display.newRect(display.actualContentWidth/1.5+diferenca, display.actualContentHeight/4+diferenca,10,10)
+			inimigo[i].id = i
 			--inimigo[i].isVisible = true
 			diferenca = diferenca + 20
+			physics.addBody(inimigo[i])
 			contAuxInimigo = contAuxInimigo + 1
+			inimigo[contAuxInimigo]:setLinearVelocity(-100,0)
 		end
 end
 criarInimigos()
 
 
-function movimetarInimigo()
-	for i=1, #inimigo do
-		if inimigo[i] ~= nil then
-		inimigo[i].x = inimigo[i].x-10
-		end
-	end
+--function movimetarInimigo()
+	--for i=1, #inimigo do
+	--	if inimigo[i] ~= nil then
+	--	inimigo[i].x = inimigo[i].x-10
+	--	end
+	--end
 	
 	--if inimigo[contAuxInimigo] ~= nil then
 	--	inimigo[contAuxInimigo].x = inimigo[contAuxInimigo].x-10
 	--end
 
-	verificarVida()
-end
+	--verificarVida()
+--end
 
 
 
 --inimigos
 
-function verificarAcertoInimigo(i)
-	for a=1, #inimigo do
-		if inimigo[a] ~= nil then
-			if tiro[i].x > inimigo[a].x and tiro[i].y == inimigo[a].y then
-				--inimigo[a].isVisible = false
-				display.remove(inimigo[a])
-				inimigo[a] = nil
-			end
-		end
-	end	
+function verificarAcertoInimigo(event)
+	print("colidiu")
+	display.remove(event.target)
+	tiro[event.target.id] = nil
+
+	display.remove(event.other)
+	inimigo[event.other.id] = nil
+
 end
 
 vidaDoBoss = 10
 function verificarAcertoBoss(i)
-	print("Está entrando na verificarAcertoBoss?")
-	if boss[1] ~= nil then
-		if tiro[i].y == boss[1].y then
+	--print("Está entrando na verificarAcertoBoss?")
+	if boss ~= nil then
+		if tiro[i].y == boss.y then
 			vidaDoBoss = vidaDoBoss - 1
 			--print("Quantidade de vida do boss: " .. vidaDoBoss)
 		end
 	end
 
 	if vidaDoBoss == 0 then
-		display.remove(boss[1])
-		boss[1] = nil
-		print(boss[1])
+		display.remove(boss)
+		boss = nil
+		print(boss)
 	end
 end
 
@@ -185,8 +203,8 @@ function verificarVida( )
 end
 
 --movimentos
-movimentoTiro = timer.performWithDelay(100,atirar,0)
-movimetoInimigo = timer.performWithDelay(100, movimetarInimigo,0)
+--movimentoTiro = timer.performWithDelay(120,atirar,0)
+--movimetoInimigo = timer.performWithDelay(100, movimetarInimigo,0)
 
 --movimentos
 
@@ -220,40 +238,46 @@ end
 
 
 --physics.addBody(boss, "static")
- --Estava funcionando a exclusao do boss quando estava criando o boss sen vetor
+ --Estava funcionando a exclusao do boss quando estava criando o boss sem vetor
+ local boss = display.newRect(display.actualContentWidth/1.2,display.actualContentHeight/3,50,50)
+ boss.isVisible = false
 function gerarBoss(testeDoBoss)
 	teste = testeDoBoss
-	if boss ~= nil then
+	
 		if teste == 5 then
-			for i=1, 1 do
-				boss[i] = display.newRect(display.actualContentWidth/1.2,display.actualContentHeight/3,50,50)
-			end
+			
+		boss.isVisible = true
+			
 		end
-	end
+	
 end
 
 contMovBoss = 1
 function movimentarBoss( )
 	
-	if boss[1] ~= nil then
+	if boss ~= nil then
+
 		if contMovBoss < 6 then
-		boss[1].y=boss[1].y-10
+		boss.y=boss.y-10
 		contMovBoss =contMovBoss +1
 		end
 	end
 
-	if boss[1] ~= nil then
+	if boss ~= nil then
 		if contMovBoss >= 6 then
-			boss[1].y = boss[1].y+10
+			boss.y = boss.y+10
 			contMovBoss = contMovBoss +1
 		end
 	end
 
-	if boss[1] ~= nil then
+	if boss ~= nil then
 		if contMovBoss == 12 then
 			contMovBoss = 0
 		end
 	end
 end
 
---movimentoBoss = timer.performWithDelay(1000, movimentarBoss,0)
+movimentoBoss = timer.performWithDelay(1000, movimentarBoss,0)
+
+
+--physics.addBody(retangulo)
