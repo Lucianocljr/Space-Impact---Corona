@@ -43,8 +43,9 @@ function moverNaveUP(event)
 	
 	if event.phase == "began" then
 		if nave ~= nil then
-			if nave.y > display.actualContentHeight/10 then
+			if nave.y > display.actualContentHeight/7 then
 				nave.y = nave.y-10
+				print("Posição da nave no eixo y: " .. nave.y)
 			end	
 		end
 	end
@@ -87,7 +88,7 @@ function moverNaveRIGHT(event)
 
 end
 
-function criarTiro(event)
+function criarTiroInimigo(event)
 
 	if event.phase == "began" then
 		if nave ~= nil then
@@ -100,7 +101,7 @@ function criarTiro(event)
 
 			tiro[contTiro]:setLinearVelocity(100,0)
 
-			--tiro[contTiro]:addEventListener("collision", verificarAcertoInimigo)
+			tiro[contTiro]:addEventListener("collision", verificarAcertoInimigo)
 		end
 	end
 
@@ -110,7 +111,7 @@ botaoUP:addEventListener("touch", moverNaveUP)
 botaoDOWN:addEventListener("touch", moverNaveDOWN)
 botaoLEFT:addEventListener("touch", moverNaveLEFT)
 botaoRIGHT:addEventListener("touch", moverNaveRIGHT)
-botaoSHOT:addEventListener("touch", criarTiro)
+botaoSHOT:addEventListener("touch", criarTiroInimigo)
 
 local inimigo = nil
 
@@ -119,11 +120,11 @@ local inimigo = nil
 function criarInimigos()
 
 	for i= 1, 5 do
-		inimigo = display.newRect(math.random(500,500), math.random(80,250),10,10)
+		inimigo = display.newRect(math.random(500,500), math.random(60,250),10,10)
 		inimigo.id = i
 		physics.addBody(inimigo)
 		inimigo:setLinearVelocity(-100,0)
-		inimigo:addEventListener("collision", verificarAcertoInimigo)
+		--inimigo:addEventListener("collision", verificarAcertoInimigo)
 	end
 
 end
@@ -137,6 +138,8 @@ function verificarAcertoInimigo(event)
 
 	display.remove(event.other)
 	tiro[event.other] = nil
+
+	incrementarPontuacao()
 
 
 end
@@ -156,6 +159,8 @@ function verificarAcertoBoss(event)
 		print("Matou o boss")
 		display.remove(event.target)
 		boss = nil
+
+		display.newText("You Win!", display.actualContentWidth/2, display.actualContentHeight/2)
 
 	end
 
@@ -181,6 +186,7 @@ function verificarVida(event)
 	if contadorVida == 0 then
 		display.remove(event.target)
 		nave = nil
+		display.newText("You Lose!", display.actualContentWidth/2, display.actualContentHeight/2)
 	end
 	
 	display.remove(vida)
@@ -202,7 +208,7 @@ function gerarInimigos()
 
 	end
 	print("Contador " .. condicaoParaDeCriarInimigos)
-	if condicaoParaDeCriarInimigos == 7 then
+	if condicaoParaDeCriarInimigos == 8 then
 		
 		timer.cancel(gerarInimigo)
 		print("Vai gerar o boss")
@@ -221,6 +227,8 @@ function gerarBoss( )
 	boss = display.newRect(display.actualContentWidth/1.2,display.actualContentHeight/3,50,50)
 	physics.addBody(boss, "dynamic")
 	boss:addEventListener("collision", verificarAcertoBoss)
+	boss.id = "boss"
+	botaoSHOT:removeEventListener("touch", criarTiroInimigo)
 	--boss:setLinearVelocity(10,10)
 	print("Gerou o boss")
 	movimentarBoss()
@@ -229,4 +237,10 @@ end
 function movimentarBoss()
 	
 
+end
+
+pontuacao = 0
+pontos = display.newText("Score: " .. pontuacao, display.actualContentWidth/1.2,display.actualContentHeight/11,native.systemFont, 15)
+function incrementarPontuacao( )
+	pontuacao = pontuacao + 10
 end
