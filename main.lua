@@ -2,9 +2,8 @@
 local physics = require( "physics" )
 physics.start()
 physics.setGravity(0,0)
-physics.setDrawMode("hybrid")
+--physics.setDrawMode("hybrid")
 
---botoes
 botaoUP = display.newRect(display.actualContentWidth/3.1,display.actualContentHeight/1.4,display.actualContentWidth/6,display.actualContentHeight/10)
 botaoUP:setFillColor( 0.35 )
 nomeBotaoUP = display.newText("UP",display.actualContentWidth/3.1,display.actualContentHeight/1.4,native.systemFont,13)
@@ -24,7 +23,6 @@ nomeBotaoRIGHT = display.newText("RIGHT",display.actualContentWidth/1.98,display
 botaoSHOT = display.newRect(display.actualContentWidth/1.2,display.actualContentHeight/1.25,display.actualContentWidth/6,display.actualContentHeight/10)
 botaoSHOT:setFillColor( 0.35 )
 nomeBotaoUP = display.newText("SHOT",display.actualContentWidth/1.2,display.actualContentHeight/1.25,native.systemFont,13)
---botoes
 
 cenario = display.newRect(display.actualContentWidth/2.05,display.actualContentHeight/3,display.actualContentWidth/1.1,display.actualContentHeight/1.85)
 cenario.strokeWidth = 1
@@ -45,7 +43,6 @@ function moverNaveUP(event)
 		if nave ~= nil then
 			if nave.y > display.actualContentHeight/7 then
 				nave.y = nave.y-10
-				print("Posição da nave no eixo y: " .. nave.y)
 			end	
 		end
 	end
@@ -94,10 +91,8 @@ function criartiroInimigo(event)
 	end
 end
 
-
 function criarTiroBoss(event)
 	if event.phase == "began" then
-		print("Entrou no tiro do boss")
 		if nave ~= nil then
 			local contTiroBoss = #tiroBoss+1
 			tiroBoss[contTiroBoss] = display.newRect(nave.x+15,nave.y,5,3)
@@ -127,7 +122,6 @@ linhaCenarioEsquerdo:setFillColor(0)
 physics.addBody(linhaCenarioEsquerdo, "static")
 linhaCenarioEsquerdo:addEventListener("collision", limparInimigo)
 
-
 function criarInimigos()
 	for i= 1, 5 do
 		inimigo = display.newRect(math.random(200,500), math.random(60,250),10,10)
@@ -145,14 +139,13 @@ function verificarAcertoInimigo(event)
 	incrementarPontuacao()
 end
 
-vidaDoBoss = 10
+vidaDoBoss = 5
 
 function verificarAcertoBoss(event)
 	vidaDoBoss = vidaDoBoss - 1
 	display.remove(event.target)
 	tiroBoss[event.target.id] = nil
 	if vidaDoBoss == 0 then
-		print("Matou o boss")
 		display.remove(event.other)
 		boss = nil
 		display.newText("You Win!", display.actualContentWidth/2, display.actualContentHeight/2)
@@ -170,7 +163,6 @@ mostrarVida(contadorVida)
 function verificarVida(event)
 	contadorVida = contadorVida - 1
 	display.remove(event.other)
-	--inimigo.id = nil
 	if contadorVida == 0 then
 		display.remove(event.target)
 		nave = nil
@@ -186,16 +178,16 @@ condicaoParaDeCriarInimigos = 1
 
 function limparTiroParaGerarBoss()
 	for i=1, #tiroInimigo do
-			display.remove(tiroInimigo[i])
+		display.remove(tiroInimigo[i])
 	end
 end
 
 function gerarInimigos()
 	condicaoParaDeCriarInimigos = condicaoParaDeCriarInimigos + 1
-	if condicaoParaDeCriarInimigos < 6 then -- 6
+	if condicaoParaDeCriarInimigos < 6 then
 		criarInimigos()
 	end
-	if condicaoParaDeCriarInimigos == 7 then -- 7
+	if condicaoParaDeCriarInimigos == 7 then
 		limparTiroParaGerarBoss()
 		timer.cancel(gerarInimigo)
 		gerarBoss()
@@ -205,26 +197,21 @@ end
 gerarInimigo = timer.performWithDelay(3000, gerarInimigos,0)
 
 local boss = nil
-
+local ataqueDoBoss = nil
 function gerarAtaqueDoBoss(event)
-	
 	if event.phase == "began" then
-		if boss ~= nil then
-	ataqueDoBoss = display.newRect(boss.x-40, boss.y , 5 ,3)
-	physics.addBody(ataqueDoBoss)
-	ataqueDoBoss:setLinearVelocity(-100,0)	
-end
+		if vidaDoBoss ~= 0 then
+			ataqueDoBoss = display.newRect(boss.x-40, boss.y , 5 ,3)
+			physics.addBody(ataqueDoBoss)
+			ataqueDoBoss:setLinearVelocity(-100,0)
+		end
 	end
 	linhaCenarioEsquerdo:addEventListener("collision", limparAtaqueDoBoss)
 end
 
 function limparAtaqueDoBoss(event)
-
 	display.remove(event.other)
 	ataqueDoBoss.id = nil
-	
-	--gerarAtaqueDoBoss()
-
 end
 
 function gerarBoss( )
@@ -233,48 +220,31 @@ function gerarBoss( )
 	botaoSHOT:removeEventListener("touch", criartiroInimigo)
 	botaoSHOT:addEventListener("touch", criarTiroBoss)
 	botaoSHOT:addEventListener("touch", gerarAtaqueDoBoss)
-	--boss:addEventListener("collision", movimentarBoss)
 
-	--local linhaCenarioDireito = display.newRect(display.actualContentWidth/1.05,0,5,display.actualContentWidth*2)
-	--linhaCenarioDireito:setFillColor(0)
-	--physics.addBody(linhaCenarioDireito, "static")
-	--linhaCenarioDireito.surfaceType = "superbounce"
-	--physics.addBody(linhaCenarioDireito, "static", { bounce=1.0, friction=0.0 })
-
-	local barraSuperior = display.newRect(display.actualContentWidth/1.27,display.actualContentHeight/10,display.actualContentWidth*2,5)
+	barraSuperior = display.newRect(display.actualContentWidth/1.1,display.actualContentHeight/9,display.actualContentWidth*2,5)
 	barraSuperior:setFillColor(0)
-	--physics.addBody(barraSuperior, "static")
 	barraSuperior.surfaceType = "superbounce"
 	physics.addBody(barraSuperior, "static",{ bounce=1.0, friction=0.0 })
 
 	local barraInferior = display.newRect(display.actualContentWidth/1.27,display.actualContentHeight/1.63,display.actualContentWidth*2,5)
 	barraInferior:setFillColor(0)
-	--physics.addBody(barraInferior, "static")
 	barraInferior.surfaceType = "superbounce"
 	physics.addBody(barraInferior, "static",{ bounce=1.0, friction=0.0 })
 
-	--local barraLimiteBoss = display.newRect(display.actualContentWidth/1.19,0,5,display.actualContentWidth*2)
-	--barraLimiteBoss:setFillColor(0)
-	--barraLimiteBoss.surfaceType = "superbounce"
-	--physics.addBody(barraLimiteBoss, "static", { bounce=1.0, friction=0.0 })
-
 	linhaCenarioEsquerdo:removeEventListener("collision", limparInimigo)
 	movimentarBoss()
-	
 end
 
 local contMovBoss = 1
 
 function movimentarBoss(event)
-
 	if contMovBoss%2 == 0 then
-	boss:setLinearVelocity(0,50)
-	contMovBoss = contMovBoss + 1
+		boss:setLinearVelocity(0,50)
+		contMovBoss = contMovBoss + 1
 	else
-	boss:setLinearVelocity(0,-50)
-	contMovBoss = contMovBoss + 1
+		boss:setLinearVelocity(0,-50)
+		contMovBoss = contMovBoss + 1
 	end
-	
 end
 
 function mostrarPontos(pontuacao)
