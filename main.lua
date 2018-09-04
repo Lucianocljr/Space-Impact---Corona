@@ -36,9 +36,12 @@ function criarCenario( )
 end
 
 function criarNave()
-	nave = display.newImageRect("nave1.png", 20,20)
-	nave.x = display.actualContentWidth/6
-	nave.y = display.actualContentHeight/3
+	--nave = display.newImageRect("nave1.png", 20,20)
+	--nave.x = display.actualContentWidth/6
+	--nave.y = display.actualContentHeight/3
+	nave = display.newRect(display.actualContentWidth/6,display.actualContentHeight/3,10,10)
+	nave.strokeWidth = 3
+	nave:setStrokeColor(1,0,0)
 	physics.addBody(nave, "static")
 	nave:addEventListener("collision", verificarVidaQuandoEstiverNosInimigos)
 end
@@ -144,6 +147,8 @@ end
 
 local vidaDoBoss = 5
 
+
+local venceu = nil
 function verificarAcertoBoss(event)
 	vidaDoBoss = vidaDoBoss - 1
 	display.remove(event.target)
@@ -152,7 +157,7 @@ function verificarAcertoBoss(event)
 	if vidaDoBoss == 0 then
 		display.remove(event.other)
 		boss = nil
-	local venceu = display.newText("You Win!", display.actualContentWidth/2, display.actualContentHeight/2)
+	venceu = display.newText("You Win!", display.actualContentWidth/2, display.actualContentHeight/2)
 		venceu.alpha = 0
 		transition.fadeIn(venceu, { time = 2000})
 		resetarJogo()
@@ -166,14 +171,14 @@ function mostrarVida(contadorVida)
 end
 
 local contadorVida = 3
-
+local perdeuNoInimigo = nil
 function verificarVidaQuandoEstiverNosInimigos(event)
 	contadorVida = contadorVida - 1
 	display.remove(event.other)
 	if contadorVida == 0 then
 		display.remove(event.target)
 		nave = nil
-	local perdeuNoInimigo = display.newText("You Lose!", display.actualContentWidth/2, display.actualContentHeight/2)
+	perdeuNoInimigo = display.newText("You Lose!", display.actualContentWidth/2, display.actualContentHeight/2)
 		perdeuNoInimigo.alpha = 0
 		transition.fadeIn(perdeuNoInimigo, { time = 2000})
 		resetarJogo()
@@ -185,6 +190,7 @@ function verificarVidaQuandoEstiverNosInimigos(event)
 	
 end
 
+local perdeuNoBoss = nil
 function verificarVidaQuandoEstiverNoBoss(event)
 
 	display.remove(event.target)
@@ -192,7 +198,7 @@ function verificarVidaQuandoEstiverNoBoss(event)
 	display.remove(vida)
 	mostrarVida(0)
 
-	local perdeuNoBoss = display.newText("You Lose!", display.actualContentWidth/2, display.actualContentHeight/2)
+	perdeuNoBoss = display.newText("You Lose!", display.actualContentWidth/2, display.actualContentHeight/2)
 	perdeuNoBoss.alpha = 0
 	transition.fadeIn(perdeuNoBoss, { time = 2000})
 	resetarJogo()
@@ -244,9 +250,11 @@ local barraSuperior = nil
 local barraInferior = nil
 
 function gerarBoss( )
-	boss = display.newImageRect("boss.png",50,50)
-	boss.x = display.actualContentWidth/1.3
-	boss.y = display.actualContentHeight/3
+	--Boss com imagem
+	--boss = display.newImageRect("boss.png",50,50)
+	--boss.x = display.actualContentWidth/1.3
+	--boss.y = display.actualContentHeight/3
+	boss = display.newRect(display.actualContentWidth/1.3,display.actualContentHeight/3,50,50)
 	physics.addBody(boss, "dynamic")
 	botaoSHOT:removeEventListener("touch", criarTiroInimigo)
 	botaoSHOT:addEventListener("touch", criarTiroBoss)
@@ -320,6 +328,7 @@ function jogarNovamente()
 	--tela.strokeWidth = 1
 	--tela:setFillColor(0)
 
+
 	nomeDoJogo = display.newText("SPACE IMPACT",display.actualContentWidth/2,display.actualContentHeight/3)
 
 	botaoComecarJogo = display.newRect(display.actualContentWidth/4,display.actualContentHeight/1.5,100,50)
@@ -350,6 +359,7 @@ function resetarJogo( )
 	display.remove(barraSuperior)
 	display.remove(barraInferior)
 	display.remove(vida)
+
 
 	pontuacao = 0
 	condicaoParaDeCriarInimigos = 1
